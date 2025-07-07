@@ -3,8 +3,8 @@ from frappe import _
 def get_data():
 	return [
 		{
-			"module_name": "frappe_telegraf_ui",
+			"module_name": "Frappe Telegraf UI",
 			"type": "module",
-			"label": _("frappe_telegraf_ui")
+			"label": _("Frappe Telegraf UI")
 		}
 	]
