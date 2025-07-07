@@ -61,6 +61,13 @@ jobs:
       - name: Add to Hosts
         run: echo "127.0.0.1 test_site" | sudo tee -a /etc/hosts
 
+      # Install app dependencies first
+      - name: Install App Dependencies
+        run: |
+          if [ -f "requirements.txt" ]; then
+            pip install -r requirements.txt
+          fi
+
       # Code Quality Steps
       - name: Install linting tools
         run: |
@@ -94,6 +101,8 @@ jobs:
         run: |
           bench get-app frappe_telegraf_ui $GITHUB_WORKSPACE
           bench setup requirements --dev
+          # Install app dependencies in bench environment
+          bench --site test_site execute frappe.utils.bench.install_requirements_txt --app frappe_telegraf_ui || true
           bench new-site --db-root-password root --admin-password admin test_site
           bench --site test_site install-app frappe_telegraf_ui
         env:
