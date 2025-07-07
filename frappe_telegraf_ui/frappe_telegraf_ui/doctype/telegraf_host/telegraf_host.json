@@ -4,11 +4,28 @@
  "creation": "2024-01-01 12:00:00.000000",
  "default_view": "List",
  "doctype": "DocType",
- "editable_grid": 1,
+ "editabl "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2024-01-01 12:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "frappe_telegraf_ui",
+ "name": "Telegraf Host",
+ "naming_rule": "By fieldname",
+ "autoname": "field:hostname",
+ "owner": "Administrator",
+ "quick_entry": 1,
+ "search_fields": "hostname,ip_address,status",
+ "show_name_in_global_search": 1,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "title_field": "hostname",1,
  "engine": "InnoDB",
  "field_order": [
+  "basic_info_section",
   "hostname",
-  "ip_address",
+  "ip_address", 
+  "description",
+  "ssh_connection_section",
   "ssh_port",
   "ssh_user",
   "ssh_auth_method",
@@ -23,73 +40,108 @@
  ],
  "fields": [
   {
+   "fieldname": "basic_info_section",
+   "fieldtype": "Section Break",
+   "label": "Host Information"
+  },
+  {
    "fieldname": "hostname",
    "fieldtype": "Data",
    "label": "Hostname",
    "reqd": 1,
-   "unique": 1
+   "unique": 1,
+   "description": "Unique hostname identifier for this Telegraf host"
   },
   {
+   "columns": 2,
    "fieldname": "ip_address",
    "fieldtype": "Data",
+   "in_list_view": 1,
    "label": "IP Address",
-   "reqd": 1
+   "reqd": 1,
+   "description": "IP address of the target host"
   },
   {
+   "columns": 4,
+   "fieldname": "description",
+   "fieldtype": "Small Text",
+   "label": "Description",
+   "description": "Optional description for this host"
+  },
+  {
+   "fieldname": "ssh_connection_section",
+   "fieldtype": "Section Break",
+   "label": "SSH Connection Settings"
+  },
+  {
+   "columns": 2,
    "default": "22",
    "fieldname": "ssh_port",
    "fieldtype": "Int",
-   "label": "SSH Port"
+   "label": "SSH Port",
+   "description": "SSH port (default: 22)"
   },
   {
+   "columns": 4,
    "fieldname": "ssh_user",
    "fieldtype": "Data",
    "label": "SSH User",
-   "reqd": 1
+   "reqd": 1,
+   "description": "Username for SSH connection"
   },
   {
+   "columns": 6,
    "default": "Private Key",
    "fieldname": "ssh_auth_method",
    "fieldtype": "Select",
-   "label": "SSH Auth Method",
-   "options": "Private Key\nPassword"
+   "label": "SSH Authentication Method",
+   "options": "Private Key\nPassword",
+   "description": "Choose authentication method"
   },
   {
    "depends_on": "eval:doc.ssh_auth_method==\"Password\"",
    "fieldname": "ssh_password",
    "fieldtype": "Password",
-   "label": "SSH Password"
+   "label": "SSH Password",
+   "description": "Password for SSH authentication (only if Password method selected)"
   },
   {
    "depends_on": "eval:doc.ssh_auth_method==\"Private Key\"",
    "fieldname": "ssh_private_key",
    "fieldtype": "Code",
-   "label": "SSH Private Key"
+   "label": "SSH Private Key",
+   "description": "Private key content for SSH authentication"
   },
   {
    "default": "/etc/telegraf/telegraf.conf",
    "fieldname": "telegraf_config_path",
    "fieldtype": "Data",
-   "label": "Telegraf Config Path"
+   "label": "Telegraf Config Path",
+   "description": "Path to telegraf.conf file on the remote host"
   },
   {
    "fieldname": "status_section",
    "fieldtype": "Section Break",
-   "label": "Status"
+   "label": "Host Status"
   },
   {
+   "columns": 3,
    "default": "Unknown",
    "fieldname": "status",
    "fieldtype": "Select",
+   "in_list_view": 1,
    "label": "Status",
    "options": "Active\nInactive\nDown\nUnknown",
-   "read_only": 1
+   "read_only": 1,
+   "description": "Current status of the Telegraf service"
   },
   {
+   "columns": 3,
    "fieldname": "last_status_check",
    "fieldtype": "Datetime",
    "label": "Last Status Check",
-   "read_only": 1
+   "read_only": 1,
+   "description": "Timestamp of the last status check"
   },
   {
    "fieldname": "config_section",
@@ -99,7 +151,9 @@
   {
    "fieldname": "telegraf_config",
    "fieldtype": "Code",
-   "label": "Telegraf Config"
+   "label": "Telegraf Configuration",
+   "options": "TOML",
+   "description": "Telegraf configuration content (TOML format)"
   }
  ],
  "index_web_pages_for_search": 1,
