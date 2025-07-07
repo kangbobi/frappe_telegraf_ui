@@ -5,3 +5,5 @@
 tags
 frappe_telegraf_ui/docs/current
 node_modules/
+generate.bat
+*.env
