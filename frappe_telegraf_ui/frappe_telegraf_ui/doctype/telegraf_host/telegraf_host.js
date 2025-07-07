@@ -32,7 +32,7 @@ frappe.ui.form.on('Telegraf Host', {
                     indicator: 'blue'
                 });
                 
-                frm.call('get_telegraf_config', { 
+                frm.call('frappe_telegraf_ui.frappe_telegraf_ui.doctype.telegraf_host.telegraf_host.get_telegraf_config', { 
                     hostname: frm.doc.name 
                 }).then(r => {
                     if (r.message) {
@@ -70,7 +70,7 @@ frappe.ui.form.on('Telegraf Host', {
                             indicator: 'blue'
                         });
                         
-                        frm.call('update_telegraf_config', {
+                        frm.call('frappe_telegraf_ui.frappe_telegraf_ui.doctype.telegraf_host.telegraf_host.update_telegraf_config', {
                             hostname: frm.doc.name,
                             new_config: frm.doc.telegraf_config
                         }).then(r => {
@@ -97,7 +97,7 @@ frappe.ui.form.on('Telegraf Host', {
                     indicator: 'blue' 
                 });
                 
-                frm.call('test_telegraf_config', { hostname: frm.doc.name })
+                frm.call('frappe_telegraf_ui.frappe_telegraf_ui.doctype.telegraf_host.telegraf_host.test_telegraf_config', { hostname: frm.doc.name })
                     .then(r => {
                         frappe.hide_alert();
                         let result_dialog = new frappe.ui.Dialog({
@@ -136,7 +136,7 @@ frappe.ui.form.on('Telegraf Host', {
                 });
                 
                 // You can implement a status check method in Python
-                frm.call('check_host_status', { hostname: frm.doc.name })
+                frm.call('frappe_telegraf_ui.frappe_telegraf_ui.doctype.telegraf_host.telegraf_host.check_host_status', { hostname: frm.doc.name })
                     .then(r => {
                         if (r.message) {
                             frm.reload_doc();
@@ -191,7 +191,7 @@ frappe.ui.form.on('Telegraf Host', {
                                     indicator: 'blue'
                                 });
                                 
-                                frm.call('manage_telegraf_service', {
+                                frm.call('frappe_telegraf_ui.frappe_telegraf_ui.doctype.telegraf_host.telegraf_host.manage_telegraf_service', {
                                     hostname: frm.doc.name,
                                     action: item.action
                                 }).then(r => {
