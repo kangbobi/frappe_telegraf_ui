@@ -61,9 +61,16 @@ jobs:
       - name: Add to Hosts
         run: echo "127.0.0.1 test_site" | sudo tee -a /etc/hosts
 
+      # Install system dependencies first
+      - name: Install System Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libssl-dev libffi-dev python3-dev
+
       # Install app dependencies first
       - name: Install App Dependencies
         run: |
+          pip install paramiko psutil
           if [ -f "requirements.txt" ]; then
             pip install -r requirements.txt
           fi
@@ -101,8 +108,13 @@ jobs:
         run: |
           bench get-app frappe_telegraf_ui $GITHUB_WORKSPACE
           bench setup requirements --dev
-          # Install app dependencies in bench environment
-          bench --site test_site execute frappe.utils.bench.install_requirements_txt --app frappe_telegraf_ui || true
+          
+          # Install dependencies in bench environment
+          ./env/bin/pip install paramiko psutil
+          if [ -f "${GITHUB_WORKSPACE}/requirements.txt" ]; then
+            ./env/bin/pip install -r ${GITHUB_WORKSPACE}/requirements.txt
+          fi
+          
           bench new-site --db-root-password root --admin-password admin test_site
           bench --site test_site install-app frappe_telegraf_ui
         env:
