@@ -116,13 +116,11 @@ app_license = "MIT"
 # ---------------
 # Hook on document methods and events
 
-# doc_events = {
-# 	"*": {
-# 		"on_update": "method",
-# 		"on_cancel": "method",
-# 		"on_trash": "method"
-# 	}
-# }
+doc_events = {
+	"Telegraf Host": {
+		"on_update": "frappe_telegraf_ui.doctype.telegraf_host.telegraf_host.on_update"
+	}
+}
 
 # Scheduled Tasks
 # ---------------
