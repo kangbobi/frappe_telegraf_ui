@@ -1,1 +1,1 @@
-Telegraf UI
+frappe_telegraf_ui

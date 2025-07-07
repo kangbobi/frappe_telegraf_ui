@@ -1,5 +1,5 @@
 app_name = "frappe_telegraf_ui"
-app_title = "Telegraf UI"
+app_title = "frappe_telegraf_ui"
 app_publisher = "kang bobi"
 app_description = "Telegraf UI"
 app_email = "devprogramming.bs@gmail.com"
