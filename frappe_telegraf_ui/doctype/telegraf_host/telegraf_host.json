@@ -1,0 +1,129 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2024-01-01 12:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "hostname",
+  "ip_address",
+  "ssh_port",
+  "ssh_user",
+  "ssh_auth_method",
+  "ssh_password",
+  "ssh_private_key",
+  "telegraf_config_path",
+  "status_section",
+  "status",
+  "last_status_check",
+  "config_section",
+  "telegraf_config"
+ ],
+ "fields": [
+  {
+   "fieldname": "hostname",
+   "fieldtype": "Data",
+   "label": "Hostname",
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "fieldname": "ip_address",
+   "fieldtype": "Data",
+   "label": "IP Address",
+   "reqd": 1
+  },
+  {
+   "default": "22",
+   "fieldname": "ssh_port",
+   "fieldtype": "Int",
+   "label": "SSH Port"
+  },
+  {
+   "fieldname": "ssh_user",
+   "fieldtype": "Data",
+   "label": "SSH User",
+   "reqd": 1
+  },
+  {
+   "default": "Private Key",
+   "fieldname": "ssh_auth_method",
+   "fieldtype": "Select",
+   "label": "SSH Auth Method",
+   "options": "Private Key\nPassword"
+  },
+  {
+   "depends_on": "eval:doc.ssh_auth_method==\"Password\"",
+   "fieldname": "ssh_password",
+   "fieldtype": "Password",
+   "label": "SSH Password"
+  },
+  {
+   "depends_on": "eval:doc.ssh_auth_method==\"Private Key\"",
+   "fieldname": "ssh_private_key",
+   "fieldtype": "Code",
+   "label": "SSH Private Key"
+  },
+  {
+   "default": "/etc/telegraf/telegraf.conf",
+   "fieldname": "telegraf_config_path",
+   "fieldtype": "Data",
+   "label": "Telegraf Config Path"
+  },
+  {
+   "fieldname": "status_section",
+   "fieldtype": "Section Break",
+   "label": "Status"
+  },
+  {
+   "default": "Unknown",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "label": "Status",
+   "options": "Active\nInactive\nDown\nUnknown",
+   "read_only": 1
+  },
+  {
+   "fieldname": "last_status_check",
+   "fieldtype": "Datetime",
+   "label": "Last Status Check",
+   "read_only": 1
+  },
+  {
+   "fieldname": "config_section",
+   "fieldtype": "Section Break",
+   "label": "Telegraf Configuration"
+  },
+  {
+   "fieldname": "telegraf_config",
+   "fieldtype": "Code",
+   "label": "Telegraf Config"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2024-01-01 12:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Frappe Telegraf Ui",
+ "name": "Telegraf Host",
+ "naming_rule": "By fieldname",
+ "autoname": "field:hostname",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}
