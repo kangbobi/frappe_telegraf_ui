@@ -260,7 +260,7 @@ def on_update(doc, method):
         try:
             # Run status check in background to avoid blocking the save
             frappe.enqueue(
-                'frappe_telegraf_ui.doctype.telegraf_host.telegraf_host.check_host_status',
+                'self.check_host_status',
                 hostname=doc.name,
                 queue='short',
                 timeout=30
