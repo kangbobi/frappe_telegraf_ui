@@ -19,7 +19,7 @@
  "show_name_in_global_search": 1,
  "sort_field": "modified",
  "sort_order": "DESC",
- "title_field": "hostname",1,
+ "title_field": "hostname",
  "engine": "InnoDB",
  "field_order": [
   "basic_info_section",
