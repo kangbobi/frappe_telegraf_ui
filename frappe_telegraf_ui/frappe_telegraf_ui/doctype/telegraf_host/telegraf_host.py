@@ -91,7 +91,7 @@ def get_telegraf_config(hostname):
         config_path = host_doc.telegraf_config_path or "/etc/telegraf/telegraf.conf"
         
         # Read the configuration file
-        command = f"sudo cat {config_path}"
+        command = f" cat {config_path}"
         stdin, stdout, stderr = client.exec_command(command)
         
         config_content = stdout.read().decode()
@@ -119,7 +119,7 @@ def update_telegraf_config(hostname, new_config):
         config_path = host_doc.telegraf_config_path or "/etc/telegraf/telegraf.conf"
         
         # Create a backup first
-        backup_command = f"sudo cp {config_path} {config_path}.backup.$(date +%Y%m%d_%H%M%S)"
+        backup_command = f" cp {config_path} {config_path}.backup.$(date +%Y%m%d_%H%M%S)"
         stdin, stdout, stderr = client.exec_command(backup_command)
         stdout.channel.recv_exit_status()  # Wait for completion
         
@@ -127,7 +127,7 @@ def update_telegraf_config(hostname, new_config):
         temp_file = f"/tmp/telegraf_config_{frappe.generate_hash(length=8)}.conf"
         
         # Write config to temp file
-        write_command = f"echo '{new_config}' | sudo tee {temp_file} > /dev/null"
+        write_command = f"echo '{new_config}' |  tee {temp_file} > /dev/null"
         stdin, stdout, stderr = client.exec_command(write_command)
         exit_code = stdout.channel.recv_exit_status()
         
@@ -135,7 +135,7 @@ def update_telegraf_config(hostname, new_config):
             raise Exception("Failed to write temporary config file")
         
         # Move temp file to actual config location
-        move_command = f"sudo mv {temp_file} {config_path}"
+        move_command = f" mv {temp_file} {config_path}"
         stdin, stdout, stderr = client.exec_command(move_command)
         exit_code = stdout.channel.recv_exit_status()
         
@@ -143,7 +143,7 @@ def update_telegraf_config(hostname, new_config):
             raise Exception("Failed to update config file")
         
         # Set proper permissions
-        chmod_command = f"sudo chmod 644 {config_path}"
+        chmod_command = f" chmod 644 {config_path}"
         stdin, stdout, stderr = client.exec_command(chmod_command)
         stdout.channel.recv_exit_status()
         
@@ -166,7 +166,7 @@ def test_telegraf_config(hostname):
         config_path = host_doc.telegraf_config_path or "/etc/telegraf/telegraf.conf"
         
         # Run telegraf --test command
-        command = f"sudo /usr/bin/telegraf --config {config_path} --test"
+        command = f" /usr/bin/telegraf --config {config_path} --test"
         stdin, stdout, stderr = client.exec_command(command)
         
         output = stdout.read().decode()
@@ -194,7 +194,7 @@ def manage_telegraf_service(hostname, action):
     client = None
     try:
         client = _get_ssh_client(hostname)
-        command = f"sudo systemctl {action} telegraf"
+        command = f" systemctl {action} telegraf"
         stdin, stdout, stderr = client.exec_command(command)
         
         exit_code = stdout.channel.recv_exit_status()
@@ -222,7 +222,7 @@ def check_host_status(hostname):
         try:
             client = _get_ssh_client(hostname)
             # Check if telegraf service is active
-            stdin, stdout, stderr = client.exec_command("sudo systemctl is-active telegraf")
+            stdin, stdout, stderr = client.exec_command(" systemctl is-active telegraf")
             status_output = stdout.read().decode().strip()
             
             if status_output == "active":
