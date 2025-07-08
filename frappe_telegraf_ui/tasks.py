@@ -22,7 +22,7 @@ def check_all_hosts_status():
         
         logger.info(f"Checking status for {len(hosts)} hosts")
         for host in hosts:
-            check_all_hosts_status(host)
+            check_single_host_status(host)
         # Use ThreadPoolExecutor for parallel checking
         with ThreadPoolExecutor(max_workers=10) as executor:
             future_to_host = {
