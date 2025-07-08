@@ -6,48 +6,112 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+# Fungsi ini TIDAK lagi menulis ke DB, hanya mengembalikan hasil
+def perform_host_check(host_data):
+    """
+    Performs a connectivity check for a single host.
+    This function is thread-safe as it does not interact with Frappe's DB.
+    Returns a dictionary with the check result.
+    """
+    try:
+        # Import diletakkan di sini agar tersedia di dalam thread
+        from frappe_telegraf_ui.frappe_telegraf_ui.doctype.telegraf_host.telegraf_host import check_host_connectivity
+        
+        is_online, response_time = check_host_connectivity(
+            host_data['ip_address'], 
+            host_data['ssh_port'] or 22,
+            timeout=5
+        )
+        
+        new_status = "Active" if is_online else "Down"
+        
+        return {
+            "name": host_data['name'],
+            "old_status": host_data.get('status', 'Unknown'),
+            "new_status": new_status,
+            "response_time": response_time,
+            "error": None
+        }
+
+    except Exception as e:
+        # Jika ada error, kembalikan juga dalam bentuk data
+        return {
+            "name": host_data['name'],
+            "old_status": host_data.get('status', 'Unknown'),
+            "new_status": "Unknown",
+            "response_time": 0,
+            "error": str(e)
+        }
 def check_all_hosts_status():
-    """Check status of all active Telegraf hosts - runs every minute for realtime monitoring"""
+    """Check status of all active Telegraf hosts - runs every minute"""
     try:
         frappe.logger().info("Starting realtime host status check")
         
-        # Get all hosts that should be monitored (exclude only Disabled)
         hosts = frappe.get_all(
-            "Telegraf Host", 
-            filters={"status": ["!=", "Disabled"]},  # Monitor all except permanently disabled
+            "Telegraf Host",
+            filters={"status": ["!=", "Disabled"]},
             fields=["name", "hostname", "ip_address", "ssh_port", "ssh_user", "status"]
         )
         
         if not hosts:
             frappe.logger().info("No hosts found for monitoring")
             return
-        
-        frappe.logger().info(f"Monitoring {len(hosts)} hosts")
-
-        # Use ThreadPoolExecutor for parallel checking - increased for realtime
-        with ThreadPoolExecutor(max_workers=20) as executor:  # Increased for faster processing
-            future_to_host = {
-                executor.submit(check_single_host_status, host): host 
-                for host in hosts
-            }
             
-            completed = 0
+        frappe.logger().info(f"Monitoring {len(hosts)} hosts in parallel")
+
+        results = []
+        with ThreadPoolExecutor(max_workers=20) as executor:
+            # Jalankan pengecekan secara paralel
+            future_to_host = {executor.submit(perform_host_check, host): host for host in hosts}
+            
             for future in as_completed(future_to_host):
-                host = future_to_host[future]
                 try:
-                    result = future.result(timeout=15)  # Reduced timeout for realtime
-                    completed += 1
-                    frappe.logger().info(f"[{completed}/{len(hosts)}] {host['name']}: {result}")
+                    # Ambil hasil dari setiap thread
+                    result_data = future.result(timeout=15)
+                    results.append(result_data)
                 except Exception as exc:
-                    frappe.logger().error(f"Host {host['name']} check failed: {exc}")
-                    completed += 1
-                    
+                    host = future_to_host[future]
+                    frappe.logger().error(f"Future for host {host['name']} generated an exception: {exc}")
+
+        frappe.logger().info(f"All host checks completed. Processing {len(results)} results...")
+
+        # --- Bagian Pemrosesan (Sekuensial dan Aman) ---
+        # Sekarang kita proses hasilnya satu per satu di thread utama
+        completed = 0
+        for result in results:
+            host_name = result['name']
+            old_status = result['old_status']
+            new_status = result['new_status']
+            response_time = result['response_time']
+            
+            completed += 1
+            log_message = f"[{completed}/{len(results)}] {host_name}: "
+
+            if result['error']:
+                frappe.logger().error(f"Host {host_name} check failed: {result['error']}")
+                frappe.db.set_value("Telegraf Host", host_name, {"status": "Unknown", "last_status_check": now()})
+                log_message += f"Error -> Unknown"
+            else:
+                # Update DB hanya jika status berubah atau belum pernah dicek
+                if old_status != new_status or old_status == 'Unknown':
+                    frappe.db.set_value("Telegraf Host", host_name, {"status": new_status, "last_status_check": now()})
+                    create_status_log(host_name, old_status, new_status, response_time, "Realtime monitoring")
+                    log_message += f"Status changed: {old_status} -> {new_status}"
+                else:
+                    # Jika status tidak berubah, cukup update timestamp
+                    frappe.db.set_value("Telegraf Host", host_name, "last_status_check", now())
+                    log_message += f"Status unchanged: {new_status}"
+            
+            frappe.logger().info(log_message)
+
+        # Commit semua perubahan ke database SEKALI SAJA di akhir
         frappe.db.commit()
-        frappe.logger().info(f"Completed realtime monitoring of {len(hosts)} hosts")
-                    
+        frappe.logger().info(f"Completed and committed monitoring of {len(results)} hosts")
+            
     except Exception as e:
         frappe.logger().error(f"Error in realtime host monitoring: {str(e)}")
         frappe.log_error(f"Realtime Monitoring Error: {str(e)}", "Host Status Check Failed")
+        frappe.db.rollback() # Batalkan transaksi jika ada error besar
 
 def check_single_host_status(host_data):
     """Check status of a single host with optimized logic for realtime monitoring"""
