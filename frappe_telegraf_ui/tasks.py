@@ -48,7 +48,7 @@ def check_single_host_status(host_data):
         host_doc = frappe.get_doc("Telegraf Host", host_data['name'])
         
         # Perform status check
-        from frappe_telegraf_ui.doctype.telegraf_host.telegraf_host import check_host_connectivity
+        from frappe_telegraf_ui.frappe_telegraf_ui.doctype.telegraf_host.telegraf_host import check_host_connectivity
         
         old_status = host_doc.status
         is_online, response_time = check_host_connectivity(
