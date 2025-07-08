@@ -1,0 +1,87 @@
+{
+    "actions": [],
+    "allow_rename": 1,
+    "creation": "2024-01-01 00:00:00.000000",
+    "doctype": "DocType",
+    "engine": "InnoDB",
+    "field_order": [
+        "host",
+        "event_type",
+        "old_status",
+        "new_status",
+        "response_time",
+        "timestamp",
+        "details"
+    ],
+    "fields": [
+        {
+            "fieldname": "host",
+            "fieldtype": "Link",
+            "in_list_view": 1,
+            "label": "Host",
+            "options": "Telegraf Host",
+            "reqd": 1
+        },
+        {
+            "fieldname": "event_type",
+            "fieldtype": "Select",
+            "in_list_view": 1,
+            "label": "Event Type",
+            "options": "Status Change\nConfig Update\nConnection Error\nService Restart",
+            "reqd": 1
+        },
+        {
+            "fieldname": "old_status",
+            "fieldtype": "Data",
+            "label": "Old Status"
+        },
+        {
+            "fieldname": "new_status",
+            "fieldtype": "Data",
+            "in_list_view": 1,
+            "label": "New Status"
+        },
+        {
+            "fieldname": "response_time",
+            "fieldtype": "Float",
+            "label": "Response Time (ms)"
+        },
+        {
+            "fieldname": "timestamp",
+            "fieldtype": "Datetime",
+            "in_list_view": 1,
+            "label": "Timestamp",
+            "reqd": 1
+        },
+        {
+            "fieldname": "details",
+            "fieldtype": "Text",
+            "label": "Details"
+        }
+    ],
+    "index_web_pages_for_search": 1,
+    "links": [],
+    "modified": "2024-01-01 00:00:00.000000",
+    "modified_by": "Administrator",
+    "module": "frappe_telegraf_ui",
+    "name": "Telegraf Host Log",
+    "owner": "Administrator",
+    "permissions": [
+        {
+            "create": 1,
+            "delete": 1,
+            "email": 1,
+            "export": 1,
+            "print": 1,
+            "read": 1,
+            "report": 1,
+            "role": "System Manager",
+            "share": 1,
+            "write": 1
+        }
+    ],
+    "sort_field": "timestamp",
+    "sort_order": "DESC",
+    "states": [],
+    "track_changes": 1
+}

@@ -125,23 +125,26 @@ app_license = "MIT"
 # Scheduled Tasks
 # ---------------
 
-# scheduler_events = {
-# 	"all": [
-# 		"frappe_telegraf_ui.tasks.all"
-# 	],
-# 	"daily": [
-# 		"frappe_telegraf_ui.tasks.daily"
-# 	],
-# 	"hourly": [
-# 		"frappe_telegraf_ui.tasks.hourly"
-# 	],
-# 	"weekly": [
-# 		"frappe_telegraf_ui.tasks.weekly"
-# 	],
-# 	"monthly": [
-# 		"frappe_telegraf_ui.tasks.monthly"
-# 	],
-# }
+scheduler_events = {
+    "cron": {
+        "*/5 * * * *": [  # Every 5 minutes
+            "frappe_telegraf_ui.tasks.check_all_hosts_status"
+        ],
+        "0 */6 * * *": [  # Every 6 hours
+            "frappe_telegraf_ui.tasks.cleanup_old_logs"
+        ]
+    },
+    "hourly": [
+        "frappe_telegraf_ui.tasks.update_telegraf_configs"
+    ],
+    "daily": [
+        "frappe_telegraf_ui.tasks.generate_daily_report",
+        "frappe_telegraf_ui.tasks.backup_configurations"
+    ],
+    "weekly": [
+        "frappe_telegraf_ui.tasks.cleanup_old_backups"
+    ]
+}
 
 # Testing
 # -------

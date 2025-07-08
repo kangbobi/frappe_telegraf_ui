@@ -253,6 +253,18 @@ def check_host_status(hostname):
         frappe.log_error(frappe.get_traceback(), "Check Host Status Failed")
         frappe.throw(f"Failed to check status for {hostname}: {str(e)}")
 
+@frappe.whitelist()
+def trigger_status_check():
+    """Manual trigger for status check - for testing"""
+    from frappe_telegraf_ui.tasks import check_all_hosts_status
+    frappe.enqueue(
+        check_all_hosts_status,
+        queue='short',
+        timeout=300,
+        is_async=True
+    )
+    return {"message": "Status check triggered successfully"}
+
 def on_update(doc, method):
     """Hook function called when document is updated."""
     # Auto-check status when document is saved (only for existing documents)
@@ -268,3 +280,24 @@ def on_update(doc, method):
         except Exception as e:
             # Don't fail the save if background job fails
             frappe.log_error(f"Failed to enqueue status check: {str(e)}", "On Update Hook")
+
+
+def check_host_connectivity(ip_address, port=22, timeout=10):
+    """Check if host is reachable via SSH"""
+    import socket
+    import time
+    
+    start_time = time.time()
+    try:
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sock.settimeout(timeout)
+        result = sock.connect_ex((ip_address, int(port)))
+        sock.close()
+        
+        response_time = (time.time() - start_time) * 1000  # Convert to milliseconds
+        return result == 0, response_time
+        
+    except Exception as e:
+        frappe.log_error(f"Connectivity check failed for {ip_address}:{port} - {str(e)}")
+        return False, None
+
