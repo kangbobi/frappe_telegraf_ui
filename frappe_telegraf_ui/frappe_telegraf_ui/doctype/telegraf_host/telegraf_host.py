@@ -282,15 +282,15 @@ def on_update(doc, method):
             frappe.log_error(f"Failed to enqueue status check: {str(e)}", "On Update Hook")
 
 
-def check_host_connectivity(ip_address, port=22, timeout=10):
-    """Check if host is reachable via SSH"""
+def check_host_connectivity(ip_address, port=22, timeout=5):
+    """Optimized connectivity check for realtime monitoring"""
     import socket
     import time
     
     start_time = time.time()
     try:
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        sock.settimeout(timeout)
+        sock.settimeout(timeout)  # Short timeout for realtime
         result = sock.connect_ex((ip_address, int(port)))
         sock.close()
         
@@ -298,6 +298,6 @@ def check_host_connectivity(ip_address, port=22, timeout=10):
         return result == 0, response_time
         
     except Exception as e:
-        frappe.log_error(f"Connectivity check failed for {ip_address}:{port} - {str(e)}")
-        return False, None
+        response_time = (time.time() - start_time) * 1000
+        return False, response_time
 

@@ -127,7 +127,7 @@ app_license = "MIT"
 
 scheduler_events = {
     "cron": {
-        "*/5 * * * *": [  # Every 5 minutes
+        "* * * * *": [  # Every minute
             "frappe_telegraf_ui.tasks.check_all_hosts_status"
         ],
         "0 */6 * * *": [  # Every 6 hours
