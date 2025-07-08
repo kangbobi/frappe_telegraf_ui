@@ -44,40 +44,13 @@ def check_all_hosts_status():
 def check_single_host_status(host_data):
     """Check status of a single host"""
     try:
-        # Get full host document
-        host_doc = frappe.get_doc("Telegraf Host", host_data['name'])
-        
+        logger.info(f"Checking status for host: {host_data['name']}")
         # Perform status check
-        from frappe_telegraf_ui.frappe_telegraf_ui.doctype.telegraf_host.telegraf_host import check_host_connectivity
-        
-        old_status = host_doc.status
-        is_online, response_time = check_host_connectivity(
-            host_doc.ip_address, 
-            host_doc.ssh_port or 22
+        from frappe_telegraf_ui.frappe_telegraf_ui.doctype.telegraf_host.telegraf_host import check_host_status
+        check_host_status(
+           host_data['name']
         )
-        
-        # Update status
-        new_status = "Active" if is_online else "Down"
-        
-        if old_status != new_status:
-            host_doc.db_set("status", new_status, update_modified=False)
-            host_doc.db_set("last_status_check", now(), update_modified=False)
-            
-            # Log status change
-            frappe.get_doc({
-                "doctype": "Telegraf Host Log",
-                "host": host_doc.name,
-                "event_type": "Status Change",
-                "old_status": old_status,
-                "new_status": new_status,
-                "response_time": response_time,
-                "timestamp": now()
-            }).insert(ignore_permissions=True)
-            
-            return f"Status changed from {old_status} to {new_status}"
-        else:
-            host_doc.db_set("last_status_check", now(), update_modified=False)
-            return f"Status unchanged: {new_status}"
+       
             
     except Exception as e:
         logger.error(f"Error checking host {host_data['name']}: {str(e)}")
