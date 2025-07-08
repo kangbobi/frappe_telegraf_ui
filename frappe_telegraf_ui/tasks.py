@@ -13,7 +13,7 @@ def check_all_hosts_status():
         hosts = frappe.get_all(
             "Telegraf Host", 
             filters={"status": ["!=", "Inactive"]},
-            fields=["name", "hostname", "ip_address", "ssh_port", "ssh_username"]
+            fields=["name", "hostname", "ip_address", "ssh_port", "ssh_user"]
         )
         
         if not hosts:
@@ -21,7 +21,8 @@ def check_all_hosts_status():
             return
         
         logger.info(f"Checking status for {len(hosts)} hosts")
-        
+        for host in hosts:
+            check_all_hosts_status(host)
         # Use ThreadPoolExecutor for parallel checking
         with ThreadPoolExecutor(max_workers=10) as executor:
             future_to_host = {
