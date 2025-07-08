@@ -13,7 +13,7 @@ def check_all_hosts_status():
         hosts = frappe.get_all(
             "Telegraf Host", 
             filters={"status": ["!=", "Inactive"]},
-            fields=["name", "hostname", "ip_address", "ssh_port", "ssh_user"]
+            fields=["name", "hostname", "ip_address", "ssh_port", "ssh_username"]
         )
         
         if not hosts:
